@@ -1496,24 +1496,26 @@ function checkCollision(x, z) {
 // =====================================================
 
 function updatePedestrians() {
+
     for (const p of pedestrians) {
+
         p.z += p.speed * p.direction;
 
+        // WALK BACK AND FORTH
         if (Math.abs(p.z - p.startZ) > 12) {
             p.direction *= -1;
         }
 
-        p.person.position.x = p.x;
-        p.person.position.z = p.z;
-
-        p.person.rotation.y =
-            p.direction > 0 ? 0 : Math.PI;
-
-        const step =
-            Math.sin(performance.now() * 0.008 + p.startZ) * 0.45;
+        // WALKING ANIMATION
+        const step = Math.sin(
+            performance.now() * 0.008 + p.startZ
+        ) * 0.35;
 
         p.leftLeg.rotation.x = step;
         p.rightLeg.rotation.x = -step;
+
+        p.person.rotation.y =
+            p.direction > 0 ? 0 : Math.PI;
     }
 }
 
