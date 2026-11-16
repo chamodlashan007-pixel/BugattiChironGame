@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -32,6 +31,61 @@
             width: 100%;
             height: 100%;
         }
+
+        /* START SCREEN */
+
+        #startScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: #050b16;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        #startScreen img {
+            width: 90%;
+            max-width: 850px;
+            max-height: 65vh;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 110, 255, 0.5);
+        }
+
+        #startScreen h1 {
+            font-size: clamp(25px, 5vw, 48px);
+            margin: 15px 0 5px;
+            letter-spacing: 3px;
+        }
+
+        #startScreen p {
+            font-size: 18px;
+            letter-spacing: 6px;
+            margin: 5px 0 20px;
+            color: #55aaff;
+        }
+
+        #startButton {
+            padding: 15px 45px;
+            background: #0875e8;
+            color: white;
+            border: 2px solid white;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #startButton:hover {
+            background: #0055bb;
+        }
+
+        /* MOBILE CONTROLS */
 
         #mobileControls {
             position: fixed;
@@ -87,28 +141,6 @@
             background: rgba(190,35,35,0.85);
         }
 
-        #extraControls {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            display: flex;
-            gap: 8px;
-            pointer-events: auto;
-        }
-
-        .smallButton {
-            min-width: 58px;
-            height: 42px;
-            padding: 0 10px;
-            border: 1px solid white;
-            border-radius: 12px;
-            background: rgba(10,20,35,0.75);
-            color: white;
-            font-size: 13px;
-            font-weight: bold;
-            touch-action: manipulation;
-        }
-
         @media (min-width: 900px) and (pointer: fine) {
             #mobileControls {
                 opacity: 0.82;
@@ -153,36 +185,70 @@
 
 <body>
 
+    <!-- START SCREEN -->
+
+    <div id="startScreen">
+
+        <img
+            src="./Bugatti_Chiron_driving_in_city_9fbc31f0_2K.jpg"
+            alt="Bugatti Chiron">
+
+        <h1>BUGATTI CHIRON</h1>
+
+        <p>CITY DRIVE</p>
+
+        <button id="startButton" type="button">
+            START GAME
+        </button>
+
+    </div>
+
+    <!-- MOBILE CONTROLS -->
+
     <div id="mobileControls">
 
-        <div id="extraControls">
-            <button class="smallButton" id="cameraButton"
-                    type="button">CAMERA</button>
-
-            <button class="smallButton" id="nightButton"
-                    type="button">NIGHT</button>
-        </div>
-
         <div class="controlGroup" id="steeringControls">
-            <button class="controlButton" id="leftButton"
-                    type="button" aria-label="Steer left">◀</button>
 
-            <button class="controlButton" id="rightButton"
-                    type="button" aria-label="Steer right">▶</button>
+            <button class="controlButton"
+                    id="leftButton"
+                    type="button"
+                    aria-label="Steer left">◀</button>
+
+            <button class="controlButton"
+                    id="rightButton"
+                    type="button"
+                    aria-label="Steer right">▶</button>
+
         </div>
 
         <div class="controlGroup" id="drivingControls">
-            <button class="controlButton" id="gasButton"
-                    type="button" aria-label="Accelerate">▲</button>
 
-            <button class="controlButton" id="brakeButton"
-                    type="button" aria-label="Brake or reverse">▼</button>
+            <button class="controlButton"
+                    id="gasButton"
+                    type="button"
+                    aria-label="Accelerate">▲</button>
+
+            <button class="controlButton"
+                    id="brakeButton"
+                    type="button"
+                    aria-label="Brake or reverse">▼</button>
+
         </div>
 
     </div>
 
+    <!-- GAME SCRIPT -->
+
     <script type="module" src="./game.js"></script>
+
+    <script>
+        document.getElementById("startButton")
+            .addEventListener("click", function () {
+
+                document.getElementById("startScreen").style.display = "none";
+
+            });
+    </script>
 
 </body>
 </html>
-```
