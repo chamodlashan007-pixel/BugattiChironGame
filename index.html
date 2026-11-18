@@ -2,253 +2,650 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0,
-                   maximum-scale=1.0, user-scalable=no">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Extreme City Drive</title>
+<title>BUGATTI CHIRON CITY DRIVE</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+<style>
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #82b7e8;
-            font-family: Arial, sans-serif;
-            touch-action: none;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
+body {
+    overflow: hidden;
+    background: #050816;
+    font-family: Arial, sans-serif;
+}
 
-        /* START SCREEN */
+canvas {
+    display: block;
+}
 
-        #startScreen {
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            background: #050b16;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
-            padding: 15px;
-        }
+/* MAIN MENU */
 
-        #startScreen img {
-            width: 90%;
-            max-width: 850px;
-            max-height: 65vh;
-            object-fit: cover;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0, 110, 255, 0.5);
-        }
+#startScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
 
-        #startScreen h1 {
-            font-size: clamp(25px, 5vw, 48px);
-            margin: 15px 0 5px;
-            letter-spacing: 3px;
-        }
+    background:
+    linear-gradient(
+        90deg,
+        rgba(2,5,15,0.95),
+        rgba(2,5,15,0.55)
+    ),
+    url("./Bugatti_Chiron_driving_in_city_9fbc31f0_2K.jpg");
 
-        #startScreen p {
-            font-size: 18px;
-            letter-spacing: 6px;
-            margin: 5px 0 20px;
-            color: #55aaff;
-        }
+    background-size: cover;
+    background-position: center;
 
-        #startButton {
-            padding: 15px 45px;
-            background: #0875e8;
-            color: white;
-            border: 2px solid white;
-            border-radius: 10px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+    display: flex;
+    align-items: center;
+    padding: 8%;
+}
 
-        #startButton:hover {
-            background: #0055bb;
-        }
+.menuContent {
+    color: white;
+    max-width: 500px;
+}
 
-        /* MOBILE CONTROLS */
+.smallTitle {
+    color: #168cff;
+    letter-spacing: 7px;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
 
-        #mobileControls {
-            position: fixed;
-            inset: 0;
-            z-index: 10;
-            pointer-events: none;
-            user-select: none;
-        }
+h1 {
+    font-size: 65px;
+    line-height: 1;
+    font-weight: 900;
+    text-shadow: 0 0 20px #0077ff;
+}
 
-        .controlGroup {
-            position: absolute;
-            bottom: 22px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            pointer-events: auto;
-        }
+.subtitle {
+    color: #b8c7df;
+    letter-spacing: 5px;
+    margin-top: 15px;
+    margin-bottom: 35px;
+}
 
-        #steeringControls {
-            left: 16px;
-        }
+.menuButton {
+    display: block;
+    width: 260px;
+    padding: 15px;
+    margin: 12px 0;
 
-        #drivingControls {
-            right: 16px;
-            flex-direction: column;
-        }
+    border: 1px solid #168cff;
+    background: rgba(0,80,180,0.18);
 
-        .controlButton {
-            width: 66px;
-            height: 66px;
-            border: 2px solid rgba(255,255,255,0.8);
-            border-radius: 18px;
-            background: rgba(10,20,35,0.72);
-            color: white;
-            font-size: 25px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: none;
-        }
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 2px;
 
-        .controlButton.active {
-            background: rgba(0,110,255,0.9);
-            transform: scale(0.95);
-        }
+    cursor: pointer;
+    transition: 0.3s;
+}
 
-        #gasButton {
-            background: rgba(0,145,55,0.85);
-        }
+.menuButton:hover {
+    background: #0875e8;
+    box-shadow: 0 0 25px #0875e8;
+    transform: translateX(8px);
+}
 
-        #brakeButton {
-            background: rgba(190,35,35,0.85);
-        }
+#exitButton {
+    border-color: #ff4444;
+}
 
-        @media (min-width: 900px) and (pointer: fine) {
-            #mobileControls {
-                opacity: 0.82;
-            }
+/* PANELS */
 
-            .controlButton {
-                width: 58px;
-                height: 58px;
-            }
-        }
+.panel {
+    position: fixed;
+    inset: 0;
+    z-index: 110;
 
-        @media (max-width: 380px) {
-            .controlButton {
-                width: 55px;
-                height: 55px;
-                border-radius: 14px;
-            }
+    display: none;
+    align-items: center;
+    justify-content: center;
 
-            .controlGroup {
-                gap: 8px;
-                bottom: 14px;
-            }
+    background: linear-gradient(
+        135deg,
+        #030817,
+        #071c3c,
+        #02040a
+    );
 
-            #steeringControls {
-                left: 10px;
-            }
+    color: white;
+    text-align: center;
+}
 
-            #drivingControls {
-                right: 10px;
-            }
-        }
-    </style>
+.panelContent {
+    width: 90%;
+    max-width: 600px;
+}
 
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
-        }
+.panel h2 {
+    font-size: 38px;
+    margin-bottom: 20px;
+    color: #168cff;
+    letter-spacing: 4px;
+}
+
+.panel p {
+    color: #b8c7df;
+    margin: 15px;
+}
+
+.carOption {
+    border: 1px solid #168cff;
+    padding: 12px;
+    margin: 12px auto;
+    max-width: 450px;
+    background: rgba(0,80,180,0.12);
+    border-radius: 8px;
+}
+
+.carOption h3 {
+    margin: 8px;
+}
+
+.carOption .menuButton {
+    margin: 10px auto;
+}
+
+#selectedCarText {
+    color: #00aaff;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* LOADING */
+
+#loadingScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    background: #030817;
+    color: white;
+}
+
+#loadingScreen h2 {
+    font-size: 32px;
+    letter-spacing: 5px;
+    margin-bottom: 25px;
+}
+
+.loadingBar {
+    width: 260px;
+    height: 8px;
+    background: #18243b;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#loadingProgress {
+    width: 0%;
+    height: 100%;
+    background: #168cff;
+    box-shadow: 0 0 15px #168cff;
+}
+
+#loadingPercent {
+    margin-top: 15px;
+    color: #168cff;
+}
+
+/* MOBILE CONTROLS */
+
+#mobileControls {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+
+    pointer-events: none;
+}
+
+.controlGroup {
+    display: flex;
+    gap: 8px;
+    pointer-events: auto;
+}
+
+.mobileButton {
+    width: 58px;
+    height: 58px;
+
+    border-radius: 50%;
+    border: 2px solid #168cff;
+
+    background: rgba(0,20,50,0.7);
+    color: white;
+
+    font-size: 20px;
+    font-weight: bold;
+    touch-action: none;
+}
+
+.mobileButton:active {
+    background: #0875e8;
+}
+
+@media (max-width: 600px) {
+
+    h1 {
+        font-size: 43px;
     }
-    </script>
+
+    .menuButton {
+        width: 220px;
+    }
+
+    .panel h2 {
+        font-size: 28px;
+    }
+
+}
+
+</style>
+
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+    }
+}
+</script>
+
 </head>
 
 <body>
 
-    <!-- START SCREEN -->
+<!-- MAIN MENU -->
 
-    <div id="startScreen">
+<div id="startScreen">
 
-        <img
-            src="./Bugatti_Chiron_driving_in_city_9fbc31f0_2K.jpg"
-            alt="Bugatti Chiron">
+    <div class="menuContent">
 
-        <h1>BUGATTI CHIRON</h1>
+        <div class="smallTitle">
+            EXPERIENCE THE LEGEND
+        </div>
 
-        <p>CITY DRIVE</p>
+        <h1>BUGATTI<br>CHIRON</h1>
 
-        <button id="startButton" type="button">
-            START GAME
+        <div class="subtitle">
+            CITY DRIVE
+        </div>
+
+        <button class="menuButton" id="playButton">
+            ▶ PLAY GAME
+        </button>
+
+        <button class="menuButton" id="garageButton">
+            🚘 GARAGE
+        </button>
+
+        <button class="menuButton" id="settingsButton">
+            ⚙ SETTINGS
+        </button>
+
+        <button class="menuButton" id="nightButtonMenu">
+            🌙 NIGHT MODE
+        </button>
+
+        <button class="menuButton" id="exitButton">
+            ✖ EXIT
         </button>
 
     </div>
 
-    <!-- MOBILE CONTROLS -->
+</div>
 
-    <div id="mobileControls">
+<!-- GARAGE -->
 
-        <div class="controlGroup" id="steeringControls">
+<div id="garagePanel" class="panel">
 
-            <button class="controlButton"
-                    id="leftButton"
-                    type="button"
-                    aria-label="Steer left">◀</button>
+    <div class="panelContent">
 
-            <button class="controlButton"
-                    id="rightButton"
-                    type="button"
-                    aria-label="Steer right">▶</button>
+        <h2>SELECT YOUR CAR</h2>
+
+        <div class="carOption">
+
+            <h3>🔵 BUGATTI CHIRON</h3>
+
+            <button class="menuButton"
+            onclick="selectGarageCar('bugatti')">
+                SELECT BUGATTI
+            </button>
+
+        </div>
+
+        <div class="carOption">
+
+            <h3>🟡 LAMBORGHINI AVENTADOR</h3>
+
+            <button class="menuButton"
+            onclick="selectGarageCar('lamborghini')">
+                SELECT LAMBORGHINI
+            </button>
 
         </div>
 
-        <div class="controlGroup" id="drivingControls">
+        <div class="carOption">
 
-            <button class="controlButton"
-                    id="gasButton"
-                    type="button"
-                    aria-label="Accelerate">▲</button>
+            <h3>🔴 FERRARI 488</h3>
 
-            <button class="controlButton"
-                    id="brakeButton"
-                    type="button"
-                    aria-label="Brake or reverse">▼</button>
+            <button class="menuButton"
+            onclick="selectGarageCar('ferrari')">
+                SELECT FERRARI
+            </button>
 
         </div>
+
+        <p id="selectedCarText">
+            SELECTED: BUGATTI CHIRON
+        </p>
+
+        <button class="menuButton" id="garageBackButton">
+            ← BACK
+        </button>
 
     </div>
 
-    <!-- GAME SCRIPT -->
+</div>
 
-    <script type="module" src="./game.js"></script>
+<!-- SETTINGS -->
 
-    <script>
-        document.getElementById("startButton")
-            .addEventListener("click", function () {
+<div id="settingsPanel" class="panel">
 
-                document.getElementById("startScreen").style.display = "none";
+    <div class="panelContent">
 
-            });
-    </script>
+        <h2>SETTINGS</h2>
 
-</body>
+        <p>GAME SETTINGS</p>
+
+        <button class="menuButton" id="nightButtonSettings">
+            🌙 TOGGLE NIGHT MODE
+        </button>
+
+        <button class="menuButton" id="settingsBackButton">
+            ← BACK
+        </button>
+
+    </div>
+
+</div>
+
+<!-- LOADING -->
+
+<div id="loadingScreen">
+
+    <h2 id="loadingTitle">BUGATTI CHIRON</h2>
+
+    <div class="loadingBar">
+        <div id="loadingProgress"></div>
+    </div>
+
+    <div id="loadingPercent">0%</div>
+
+    <p style="margin-top:20px;color:#8293b2;">
+        LOADING CITY...
+    </p>
+
+</div>
+
+<!-- MOBILE CONTROLS -->
+
+<div id="mobileControls">
+
+    <div class="controlGroup">
+
+        <button class="mobileButton" id="leftButton">◀</button>
+
+        <button class="mobileButton" id="rightButton">▶</button>
+
+        <button class="mobileButton" id="cameraButton">C</button>
+
+    </div>
+
+    <div class="controlGroup">
+
+        <button class="mobileButton" id="brakeButton">▼</button>
+
+        <button class="mobileButton" id="gasButton">▲</button>
+
+        <button class="mobileButton" id="nitroButton">⚡</button>
+
+    </div>
+
+</div>
+
+<!-- GAME -->
+
+<script type="module" src="./game.js"></script>
+
+<!-- MENU FUNCTIONS -->
+
+<script>
+
+const startScreen =
+document.getElementById("startScreen");
+
+const garagePanel =
+document.getElementById("garagePanel");
+
+const settingsPanel =
+document.getElementById("settingsPanel");
+
+const loadingScreen =
+document.getElementById("loadingScreen");
+
+const loadingProgress =
+document.getElementById("loadingProgress");
+
+const loadingPercent =
+document.getElementById("loadingPercent");
+
+let chosenCar = "bugatti";
+
+const carNames = {
+    bugatti: "BUGATTI CHIRON",
+    lamborghini: "LAMBORGHINI AVENTADOR",
+    ferrari: "FERRARI 488"
+};
+
+/* GARAGE SELECTION */
+
+function selectGarageCar(type) {
+
+    chosenCar = type;
+
+    document.getElementById("selectedCarText").textContent =
+        "SELECTED: " + carNames[type];
+
+    if (typeof window.selectCar === "function") {
+
+        window.selectCar(type);
+
+    } else {
+
+        alert("Game is still loading. Please try again.");
+
+    }
+}
+
+window.selectGarageCar = selectGarageCar;
+
+/* PLAY GAME */
+
+document.getElementById("playButton")
+.addEventListener("click", function() {
+
+    startScreen.style.display = "none";
+    garagePanel.style.display = "none";
+    settingsPanel.style.display = "none";
+
+    loadingScreen.style.display = "flex";
+
+    document.getElementById("loadingTitle").textContent =
+        carNames[chosenCar];
+
+    let progress = 0;
+
+    const loadingTimer = setInterval(function() {
+
+        progress += 2;
+
+        loadingProgress.style.width =
+            progress + "%";
+
+        loadingPercent.textContent =
+            progress + "%";
+
+        if (progress >= 100) {
+
+            clearInterval(loadingTimer);
+
+            loadingScreen.style.display = "none";
+
+        }
+
+    }, 40);
+
+});
+
+/* GARAGE */
+
+document.getElementById("garageButton")
+.addEventListener("click", function() {
+
+    startScreen.style.display = "none";
+    garagePanel.style.display = "flex";
+
+});
+
+document.getElementById("garageBackButton")
+.addEventListener("click", function() {
+
+    garagePanel.style.display = "none";
+    startScreen.style.display = "flex";
+
+});
+
+/* SETTINGS */
+
+document.getElementById("settingsButton")
+.addEventListener("click", function() {
+
+    startScreen.style.display = "none";
+    settingsPanel.style.display = "flex";
+
+});
+
+document.getElementById("settingsBackButton")
+.addEventListener("click", function() {
+
+    settingsPanel.style.display = "none";
+    startScreen.style.display = "flex";
+
+});
+
+/* NIGHT MODE */
+
+function changeNightMode() {
+
+    if (typeof window.toggleNightMode === "function") {
+
+        window.toggleNightMode();
+
+    } else {
+
+        alert("Night mode function was not found!");
+
+    }
+
+}
+
+document.getElementById("nightButtonMenu")
+.addEventListener("click", changeNightMode);
+
+document.getElementById("nightButtonSettings")
+.addEventListener("click", changeNightMode);
+
+/* EXIT */
+
+document.getElementById("exitButton")
+.addEventListener("click", function() {
+
+    alert("To exit the game, close this browser tab.");
+
+});
+
+</script>
+
+</body><!-- PAUSE BUTTON -->
+<button id="pauseButton">Ⅱ</button>
+
+<!-- PAUSE MENU -->
+<div id="pausePanel">
+    <h1>GAME PAUSED</h1>
+
+    <button id="resumeButton">▶ RESUME</button>
+    <button id="mainMenuButton">🏠 MAIN MENU</button>
+</div>
+
+<style>
+#pauseButton {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 9999;
+    padding: 12px 20px;
+    font-size: 22px;
+    background: #0875e8;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#pausePanel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0,0,0,0.9);
+    color: white;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#pausePanel button {
+    width: 220px;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+</style>
 </html>

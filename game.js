@@ -18,7 +18,7 @@ const camera = new THREE.PerspectiveCamera(
     1800
 );
 
-camera.position.set(0, 6, 14);
+camera.position.set(0, 6, 1);
 
 // RENDERER
 const renderer = new THREE.WebGLRenderer({
@@ -196,7 +196,51 @@ const roof = new THREE.Mesh(
     new THREE.BoxGeometry(2.45, 0.65, 2.8),
     blueMat
 );
+// =====================================================
+// GARAGE - CAR SELECTION
+// =====================================================
 
+let selectedCar = "bugatti";
+
+function selectCar(type) {
+
+    selectedCar = type;
+
+    // RESET CAR SIZE
+    carBody.scale.set(1, 1, 1);
+    roof.scale.set(1, 1, 1);
+
+    if (type === "bugatti") {
+
+        blueMat.color.setHex(0x0875e8);
+
+        carBody.scale.set(1, 1, 1);
+        roof.scale.set(1, 1, 1);
+
+    }
+
+    else if (type === "lamborghini") {
+
+        blueMat.color.setHex(0xffcc00);
+
+        carBody.scale.set(1.02, 1, 1.03);
+        roof.scale.set(0.88, 0.85, 0.75);
+
+    }
+
+    else if (type === "ferrari") {
+
+        blueMat.color.setHex(0xe60000);
+
+        carBody.scale.set(0.98, 0.95, 0.94);
+        roof.scale.set(0.90, 0.90, 0.85);
+
+    }
+
+    console.log("Selected car:", selectedCar);
+}
+
+window.selectCar = selectCar;
 roof.position.set(0, 1.35, 0.25);
 car.add(roof);
 
@@ -503,9 +547,6 @@ for (let i = 0; i < 90; i++) {
     }
 }
 
-// =====================================================
-// END OF PART 1
-// =====================================================
 // =====================================================
 // PART 2 - PEDESTRIANS
 // =====================================================
@@ -1105,9 +1146,6 @@ function checkCollision(x, z) {
 }
 
 // =====================================================
-// END OF PART 2
-// =====================================================
-// =====================================================
 // PART 3 - PLAYER CAR UPDATE
 // =====================================================
 
@@ -1270,6 +1308,12 @@ function toggleNightMode() {
         sun.intensity = 1.4;
     }
 }
+
+// =====================================================
+// MAIN MENU NIGHT MODE CONNECTION
+// =====================================================
+
+window.toggleNightMode = toggleNightMode;
 
 // =====================================================
 // ENGINE SOUND AND HORN
@@ -1571,6 +1615,7 @@ window.addEventListener("resize", function() {
 function animate() {
 
     requestAnimationFrame(animate);
+    
 
     updateCar();
 
