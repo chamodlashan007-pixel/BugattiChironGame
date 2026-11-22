@@ -74,7 +74,7 @@ const roadPositions = [-600, -300, 0, 300, 600];
 // =====================================================
 
 const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(1800, 1800),
+    new THREE.PlaneGeometry(3200, 3200),
     grassMat
 );
 
@@ -196,6 +196,7 @@ const roof = new THREE.Mesh(
     new THREE.BoxGeometry(2.45, 0.65, 2.8),
     blueMat
 );
+
 // =====================================================
 // GARAGE - CAR SELECTION
 // =====================================================
@@ -241,6 +242,7 @@ function selectCar(type) {
 }
 
 window.selectCar = selectCar;
+
 roof.position.set(0, 1.35, 0.25);
 car.add(roof);
 
@@ -546,7 +548,6 @@ for (let i = 0; i < 90; i++) {
         createTree(x, z);
     }
 }
-
 // =====================================================
 // PART 2 - PEDESTRIANS
 // =====================================================
@@ -894,7 +895,6 @@ function updateTrafficLights() {
         );
     }
 }
-
 // =====================================================
 // TRAFFIC CARS
 // =====================================================
@@ -1088,12 +1088,12 @@ function updateTraffic() {
 function checkCollision(x, z) {
 
     // CITY BOUNDARY
-    if (
-        x < -760 ||
-        x > 760 ||
-        z < -760 ||
-        z > 760
-    ) {
+if (
+    x < -1450 ||
+    x > 1450 ||
+    z < -1450 ||
+    z > 1450
+) {
         return true;
     }
 
@@ -1193,8 +1193,8 @@ function updateCar() {
     // STEERING
     let steerTarget = 0;
 
-    if (left) steerTarget = 0.55;
-    if (right) steerTarget = -0.55;
+    if (left) steerTarget = steeringSensitivity;
+    if (right) steerTarget = -steeringSensitivity;
 
     steering += (steerTarget - steering) * 0.15;
 
@@ -1314,6 +1314,402 @@ function toggleNightMode() {
 // =====================================================
 
 window.toggleNightMode = toggleNightMode;
+// =====================================================
+// GAME SETTINGS VARIABLES
+// =====================================================
+
+let graphicsQuality = "low";
+let targetFPS = 60;
+let soundVolume = 0.5;
+let engineSoundEnabled = true;
+let steeringSensitivity = 0.55;
+
+// =====================================================
+// GAME SETTINGS MENU
+// =====================================================
+
+function createGameSettings() {
+
+    const settingsPanel =
+        document.querySelector("#settingsPanel .panelContent");
+
+    if (!settingsPanel) {
+        console.warn("Settings panel not found!");
+        return;
+    }
+
+    // PREVENT DUPLICATE SETTINGS
+    if (document.getElementById("advancedGameSettings")) {
+        return;
+    }
+
+    const settingsBox = document.createElement("div");
+
+    settingsBox.id = "advancedGameSettings";
+
+    settingsBox.innerHTML = `
+
+        <style>
+            #advancedGameSettings {
+                width: 100%;
+                color: white;
+                font-family: Arial, sans-serif;
+            }
+
+            #advancedGameSettings .settingItem {
+                margin: 12px 0;
+                padding: 10px;
+                background: rgba(255,255,255,0.08);
+                border-radius: 8px;
+            }
+
+            #advancedGameSettings label {
+                display: block;
+                margin-bottom: 7px;
+                font-size: 14px;
+            }
+
+            #advancedGameSettings select,
+            #advancedGameSettings input {
+                width: 100%;
+                cursor: pointer;
+            }
+
+            #advancedGameSettings select {
+                padding: 9px;
+                border: none;
+                border-radius: 6px;
+                background: #202b3d;
+                color: white;
+            }
+
+            #advancedGameSettings input[type="range"] {
+                accent-color: #0875e8;
+            }
+
+            #advancedGameSettings input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
+                accent-color: #0875e8;
+            }
+
+            #advancedGameSettings h3 {
+                margin: 15px 0;
+                color: #38aaff;
+            }
+        </style>
+
+        <h3>GAME SETTINGS</h3>
+
+        <div class="settingItem">
+            <label>Graphics Quality</label>
+
+            <select id="graphicsSelect">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+
+        <div class="settingItem">
+            <label>FPS Limit</label>
+
+            <select id="fpsSelect">
+                <option value="30">30 FPS</option>
+                <option value="60">60 FPS</option>
+            </select>
+        </div>
+
+        <div class="settingItem">
+            <label>
+                Sound Volume:
+                <span id="volumeValue">50%</span>
+            </label>
+
+            <input
+                type="range"
+                id="volumeSlider"
+                min="0"
+                max="100"
+                value="50"
+            >
+        </div>
+
+        <div class="settingItem">
+            <label>
+                Engine Sound
+                <input
+                    type="checkbox"
+                    id="engineSoundToggle"
+                    checked
+                >
+            </label>
+        </div>
+
+        <div class="settingItem">
+            <label>Camera Mode</label>
+
+            <select id="cameraSelect">
+                <option value="0">Follow Camera</option>
+                <option value="1">Close Camera</option>
+            </select>
+        </div>
+
+        <div class="settingItem">
+            <label>
+                Steering Sensitivity:
+                <span id="steeringValue">5</span>
+            </label>
+
+            <input
+                type="range"
+                id="steeringSlider"
+                min="1"
+                max="10"
+                value="5"
+            >
+        </div>
+
+        <div class="settingItem">
+            <label>Mobile Button Size</label>
+
+            <select id="buttonSizeSelect">
+                <option value="65px">Small</option>
+                <option value="80px" selected>Medium</option>
+                <option value="100px">Large</option>
+            </select>
+        </div>
+
+        <div class="settingItem">
+            <label>
+                Fullscreen
+                <input
+                    type="checkbox"
+                    id="fullscreenToggle"
+                >
+            </label>
+        </div>
+
+        <div class="settingItem">
+            <button
+                id="settingsHeadlightButton"
+                style="
+                    width:100%;
+                    padding:12px;
+                    border:0;
+                    border-radius:6px;
+                    background:#0875e8;
+                    color:white;
+                    cursor:pointer;
+                "
+            >
+                Toggle Headlights
+            </button>
+        </div>
+    `;
+
+    settingsPanel.prepend(settingsBox);
+
+    // =====================================================
+// SETTINGS BACK BUTTON
+// =====================================================
+
+const backButton = document.createElement("button");
+
+backButton.id = "settingsBackButton";
+backButton.textContent = "← BACK";
+
+backButton.style.cssText = `
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 15px;
+    background: #0875e8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+`;
+
+settingsPanel.prepend(backButton);
+
+backButton.addEventListener("click", function() {
+
+    document.getElementById("settingsPanel").style.display = "none";
+
+    const pausePanel = document.getElementById("pausePanel");
+
+    if (pausePanel) {
+        pausePanel.style.display = "block";
+    }
+});
+
+    // GRAPHICS QUALITY
+    const graphicsSelect =
+        document.getElementById("graphicsSelect");
+
+    graphicsSelect.addEventListener("change", function() {
+
+        graphicsQuality = this.value;
+
+        let pixelRatio = 1;
+
+        if (graphicsQuality === "medium") {
+            pixelRatio = 1.25;
+        }
+
+        if (graphicsQuality === "high") {
+            pixelRatio = 1.5;
+        }
+
+        renderer.setPixelRatio(
+            Math.min(window.devicePixelRatio, pixelRatio)
+        );
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+    });
+
+    // FPS LIMIT
+    const fpsSelect =
+        document.getElementById("fpsSelect");
+
+    fpsSelect.addEventListener("change", function() {
+
+        targetFPS = Number(this.value);
+
+        lastFrameTime = 0;
+    });
+
+    // SOUND VOLUME
+    const volumeSlider =
+        document.getElementById("volumeSlider");
+
+    const volumeValue =
+        document.getElementById("volumeValue");
+
+    volumeSlider.addEventListener("input", function() {
+
+        soundVolume = Number(this.value) / 100;
+
+        volumeValue.textContent = this.value + "%";
+
+        if (engineGain) {
+            engineGain.gain.value =
+                engineSoundEnabled
+                    ? 0.018 * soundVolume
+                    : 0;
+        }
+
+        if (hornGain) {
+            hornGain.gain.value =
+                engineSoundEnabled
+                    ? 0.06 * soundVolume
+                    : 0;
+        }
+    });
+
+    // ENGINE SOUND ON / OFF
+    const engineToggle =
+        document.getElementById("engineSoundToggle");
+
+    engineToggle.addEventListener("change", function() {
+
+        engineSoundEnabled = this.checked;
+
+        if (engineGain) {
+            engineGain.gain.value =
+                engineSoundEnabled
+                    ? 0.018 * soundVolume
+                    : 0;
+        }
+
+        if (hornGain) {
+            hornGain.gain.value =
+                engineSoundEnabled
+                    ? 0.06 * soundVolume
+                    : 0;
+        }
+    });
+
+    // CAMERA MODE
+    const cameraSelect =
+        document.getElementById("cameraSelect");
+
+    cameraSelect.addEventListener("change", function() {
+
+        cameraMode = Number(this.value);
+    });
+
+    // STEERING SENSITIVITY
+    const steeringSlider =
+        document.getElementById("steeringSlider");
+
+    const steeringValue =
+        document.getElementById("steeringValue");
+
+    steeringSlider.addEventListener("input", function() {
+
+        steeringSensitivity =
+            Number(this.value) / 10;
+
+        steeringValue.textContent = this.value;
+    });
+
+    // MOBILE BUTTON SIZE
+    const buttonSizeSelect =
+        document.getElementById("buttonSizeSelect");
+
+    buttonSizeSelect.addEventListener("change", function() {
+
+        const buttons =
+            document.querySelectorAll(".mobileButton");
+
+        buttons.forEach(button => {
+
+            button.style.width = this.value;
+            button.style.height = this.value;
+
+        });
+    });
+
+    // FULLSCREEN
+    const fullscreenToggle =
+        document.getElementById("fullscreenToggle");
+
+    fullscreenToggle.addEventListener("change", async function() {
+
+        try {
+
+            if (this.checked) {
+
+                if (document.documentElement.requestFullscreen) {
+                    await document.documentElement.requestFullscreen();
+                }
+
+            } else {
+
+                if (document.fullscreenElement) {
+                    await document.exitFullscreen();
+                }
+            }
+
+        } catch (error) {
+
+            console.log("Fullscreen not supported:", error);
+
+            this.checked = !!document.fullscreenElement;
+        }
+    });
+
+    // HEADLIGHT BUTTON
+    document.getElementById("settingsHeadlightButton")
+        .addEventListener("click", toggleHeadlights);
+}
 
 // =====================================================
 // ENGINE SOUND AND HORN
@@ -1327,6 +1723,8 @@ let hornOscillator = null;
 let hornGain = null;
 
 function startEngineSound() {
+
+    if (!engineSoundEnabled) return;
 
     if (audioContext) {
 
@@ -1352,7 +1750,7 @@ function startEngineSound() {
 
     engineOscillator.frequency.value = 65;
 
-    engineGain.gain.value = 0.018;
+    engineGain.gain.value = 0.018 * soundVolume;
 
     engineOscillator.connect(engineGain);
 
@@ -1369,6 +1767,8 @@ function updateEngineSound() {
         return;
     }
 
+    if (!engineSoundEnabled) return;
+
     const frequency =
         65 + Math.abs(speed) * 100;
 
@@ -1381,9 +1781,11 @@ function updateEngineSound() {
 
 function playHorn() {
 
+    if (!engineSoundEnabled) return;
+
     startEngineSound();
 
-    if (hornOscillator) return;
+    if (!audioContext || hornOscillator) return;
 
     hornOscillator =
         audioContext.createOscillator();
@@ -1395,7 +1797,7 @@ function playHorn() {
 
     hornOscillator.frequency.value = 440;
 
-    hornGain.gain.value = 0.06;
+    hornGain.gain.value = 0.06 * soundVolume;
 
     hornOscillator.connect(hornGain);
 
@@ -1609,13 +2011,26 @@ window.addEventListener("resize", function() {
 });
 
 // =====================================================
+// FPS SYSTEM
+// =====================================================
+
+let lastFrameTime = 0;
+
+// =====================================================
 // GAME LOOP
 // =====================================================
 
-function animate() {
+function animate(timestamp = 0) {
 
     requestAnimationFrame(animate);
-    
+
+    const frameInterval = 1000 / targetFPS;
+
+    if (timestamp - lastFrameTime < frameInterval) {
+        return;
+    }
+
+    lastFrameTime = timestamp;
 
     updateCar();
 
@@ -1636,8 +2051,494 @@ function animate() {
 // START GAME
 // =====================================================
 
+// CREATE SETTINGS
+createGameSettings();
+
+// START ANIMATION
 animate();
 
 console.log(
     "BUGATTI CHIRON CITY DRIVE READY!"
 );
+// =====================================================
+// UPDATE 7 - RACING MISSIONS
+// =====================================================
+
+const missionCheckpoints = [
+    new THREE.Vector3(0, 0, -200),
+    new THREE.Vector3(300, 0, -300),
+    new THREE.Vector3(600, 0, 0),
+    new THREE.Vector3(300, 0, 300)
+];
+
+let missionActive = false;
+let missionCompleted = false;
+let currentCheckpoint = 0;
+let missionTime = 120;
+let missionPoints = 0;
+
+const checkpointMarkers = [];
+
+function createCheckpoint(position, number) {
+
+    const checkpoint = new THREE.Group();
+
+    // BIG GLOWING RING
+    const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(12, 1.2, 12, 40),
+        new THREE.MeshBasicMaterial({
+            color: 0x00ffff,
+            side: THREE.DoubleSide
+        })
+    );
+
+    ring.position.y = 8;
+    checkpoint.add(ring);
+
+    // CHECKPOINT NUMBER
+    const marker = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.5, 0.5, 12, 8),
+        new THREE.MeshBasicMaterial({
+            color: 0x00ffff
+        })
+    );
+
+    marker.position.y = 8;
+    checkpoint.add(marker);
+
+    checkpoint.position.set(
+        position.x,
+        0,
+        position.z
+    );
+
+    scene.add(checkpoint);
+
+    checkpointMarkers.push(checkpoint);
+}
+
+    ring.position.y = 7;
+    group.add(ring);
+
+    // CHECKPOINT NUMBER
+    const pole1 = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.4, 0.4, 14, 8),
+        new THREE.MeshBasicMaterial({
+            color: 0x00ffff
+        })
+    );
+
+    pole1.position.set(-9, 7, 0);
+    group.add(pole1);
+
+    const pole2 = pole1.clone();
+    pole2.position.x = 9;
+    group.add(pole2);
+
+    group.position.set(
+        position.x,
+        0,
+        position.z
+    );
+
+    scene.add(group);
+
+    checkpointMarkers.push(group);
+
+// START MISSION
+
+function startCitySprint() {
+
+    missionActive = true;
+    missionCompleted = false;
+
+    currentCheckpoint = 0;
+    missionTime = 120;
+
+    document.getElementById("missionPanel").style.display = "block";
+
+    updateMissionUI();
+
+}
+
+// UPDATE MISSION
+
+function updateMission() {
+
+    if (!missionActive || missionCompleted) return;
+
+    missionTime -= 1 / 60;
+
+    if (missionTime <= 0) {
+
+        missionTime = 0;
+        missionActive = false;
+
+        document.getElementById("missionStatus").textContent =
+            "TIME UP! TRY AGAIN";
+
+        return;
+    }
+
+    const target = missionCheckpoints[currentCheckpoint];
+
+    const distance = Math.hypot(
+        car.position.x - target.x,
+        car.position.z - target.z
+    );
+
+    if (distance < 12) {
+
+        currentCheckpoint++;
+
+        if (currentCheckpoint >= missionCheckpoints.length) {
+
+            missionCompleted = true;
+            missionActive = false;
+
+            missionPoints += 500;
+
+            document.getElementById("missionStatus").textContent =
+                "🏆 MISSION COMPLETE! +500 POINTS";
+
+            return;
+        }
+    }
+
+    updateMissionUI();
+}
+
+// MISSION UI
+
+function updateMissionUI() {
+
+    document.getElementById("missionTimer").textContent =
+        Math.ceil(missionTime) + "s";
+
+    document.getElementById("missionCheckpoint").textContent =
+        (currentCheckpoint + 1) + " / 4";
+
+    document.getElementById("missionPoints").textContent =
+        missionPoints;
+}
+
+// UPDATE CHECKPOINT MARKERS
+
+function updateCheckpointMarkers() {
+
+    checkpointMarkers.forEach((marker, index) => {
+
+        marker.visible =
+            missionActive && index === currentCheckpoint;
+
+        marker.rotation.y += 0.025;
+
+        const pulse = 1 + Math.sin(
+            performance.now() * 0.004
+        ) * 0.08;
+
+        marker.scale.set(pulse, pulse, pulse);
+
+    });
+}
+
+// CONNECT MISSION BUTTON
+
+window.startCitySprint = startCitySprint;
+// =====================================================
+// UPDATE 8 - OPEN WORLD EXPANSION
+// =====================================================
+
+// HIGHWAY MATERIALS
+
+const highwayMat = new THREE.MeshLambertMaterial({
+    color: 0x20252b
+});
+
+const bridgeMat = new THREE.MeshLambertMaterial({
+    color: 0x777777
+});
+
+// EXTENDED HIGHWAYS
+
+function createHighway(x, z, horizontal) {
+
+    const road = new THREE.Mesh(
+        new THREE.BoxGeometry(
+            horizontal ? 3000 : 32,
+            0.15,
+            horizontal ? 32 : 3000
+        ),
+        highwayMat
+    );
+
+    road.position.set(x, 0.03, z);
+
+    scene.add(road);
+
+    // ROAD LINES
+
+    for (let i = -1400; i < 1400; i += 35) {
+
+        const line = new THREE.Mesh(
+            new THREE.BoxGeometry(
+                horizontal ? 15 : 1,
+                0.08,
+                horizontal ? 1 : 15
+            ),
+            whiteMat
+        );
+
+        line.position.set(
+            horizontal ? i : x,
+            0.15,
+            horizontal ? z : i
+        );
+
+        scene.add(line);
+    }
+}
+
+createHighway(900, 0, false);
+createHighway(-900, 0, false);
+createHighway(0, 900, true);
+createHighway(0, -900, true);
+
+
+// =====================================================
+// BRIDGES
+// =====================================================
+
+function createBridge(x, z) {
+
+    const bridge = new THREE.Mesh(
+        new THREE.BoxGeometry(100, 1, 35),
+        bridgeMat
+    );
+
+    bridge.position.set(x, 2, z);
+
+    scene.add(bridge);
+
+    const railMaterial = makeMaterial(0xcccccc);
+
+    for (const side of [-1, 1]) {
+
+        const rail = new THREE.Mesh(
+            new THREE.BoxGeometry(100, 3, 1),
+            railMaterial
+        );
+
+        rail.position.set(
+            x,
+            4,
+            z + side * 17
+        );
+
+        scene.add(rail);
+    }
+}
+
+createBridge(900, 300);
+createBridge(-900, -300);
+
+
+// =====================================================
+// PETROL STATION
+// =====================================================
+
+function createPetrolStation(x, z) {
+
+    createBuilding(
+        x,
+        z,
+        65,
+        12,
+        55,
+        0xe0e0e0
+    );
+
+    const roof = new THREE.Mesh(
+        new THREE.BoxGeometry(65, 2, 55),
+        makeMaterial(0xff3333)
+    );
+
+    roof.position.set(x, 14, z);
+
+    scene.add(roof);
+
+    // FUEL PUMPS
+
+    for (let i = -15; i <= 15; i += 15) {
+
+        const pump = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 8, 4),
+            makeMaterial(0xffffff)
+        );
+
+        pump.position.set(x + i, 5, z + 38);
+
+        scene.add(pump);
+
+        solidObjects.push({
+            x: x + i,
+            z: z + 38,
+            width: 4,
+            depth: 4
+        });
+    }
+}
+
+createPetrolStation(1000, 250);
+
+
+// =====================================================
+// CAR SHOWROOM
+// =====================================================
+
+function createShowroom(x, z) {
+
+    createBuilding(
+        x,
+        z,
+        100,
+        22,
+        75,
+        0x168cff
+    );
+
+    const glass = new THREE.Mesh(
+        new THREE.BoxGeometry(80, 12, 2),
+        new THREE.MeshBasicMaterial({
+            color: 0x66ccff,
+            transparent: true,
+            opacity: 0.7
+        })
+    );
+
+    glass.position.set(x, 10, z + 38);
+
+    scene.add(glass);
+}
+
+createShowroom(-1000, 250);
+
+
+// =====================================================
+// AIRPORT
+// =====================================================
+
+function createAirport() {
+
+    const runway = new THREE.Mesh(
+        new THREE.BoxGeometry(120, 0.2, 700),
+        roadMat
+    );
+
+    runway.position.set(-1150, 0.05, -850);
+
+    scene.add(runway);
+
+    for (let z = -1180; z < -500; z += 35) {
+
+        const line = new THREE.Mesh(
+            new THREE.BoxGeometry(3, 0.1, 18),
+            whiteMat
+        );
+
+        line.position.set(-1150, 0.17, z);
+
+        scene.add(line);
+    }
+
+    createBuilding(
+        -1300,
+        -850,
+        100,
+        25,
+        130,
+        0xb0bec5
+    );
+}
+
+createAirport();
+
+
+// =====================================================
+// BEACH AREA
+// =====================================================
+
+const sandMat = makeMaterial(0xf4d58d);
+
+const beach = new THREE.Mesh(
+    new THREE.PlaneGeometry(600, 350),
+    sandMat
+);
+
+beach.rotation.x = -Math.PI / 2;
+
+beach.position.set(1150, 0.02, 1050);
+
+scene.add(beach);
+
+
+// =====================================================
+// PARK
+// =====================================================
+
+function createPark(x, z) {
+
+    const park = new THREE.Mesh(
+        new THREE.BoxGeometry(180, 0.15, 180),
+        makeMaterial(0x32a852)
+    );
+
+    park.position.set(x, 0.05, z);
+
+    scene.add(park);
+
+    for (let i = 0; i < 15; i++) {
+
+        const tx = x + random(-75, 75);
+        const tz = z + random(-75, 75);
+
+        createTree(tx, tz);
+    }
+}
+
+createPark(1000, -600);
+createPark(-1000, 600);
+
+
+// =====================================================
+// RACING TRACK
+// =====================================================
+
+function createRacingTrack(x, z) {
+
+    const track = new THREE.Mesh(
+        new THREE.RingGeometry(85, 115, 64),
+        roadMat
+    );
+
+    track.rotation.x = -Math.PI / 2;
+
+    track.position.set(x, 0.1, z);
+
+    scene.add(track);
+
+    const center = new THREE.Mesh(
+        new THREE.CircleGeometry(85, 64),
+        makeMaterial(0x32a852)
+    );
+
+    center.rotation.x = -Math.PI / 2;
+
+    center.position.set(x, 0.08, z);
+
+    scene.add(center);
+}
+
+createRacingTrack(-1000, -200);
+
+console.log("UPDATE 8 OPEN WORLD READY!");

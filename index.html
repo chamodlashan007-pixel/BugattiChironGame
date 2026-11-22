@@ -351,7 +351,9 @@ canvas {
         <button class="menuButton" id="playButton">
             ▶ PLAY GAME
         </button>
-
+        <button class="menuButton" id="missionButton">
+    🏁 RACING MISSIONS
+</button>
         <button class="menuButton" id="garageButton">
             🚘 GARAGE
         </button>
@@ -439,9 +441,21 @@ canvas {
             🌙 TOGGLE NIGHT MODE
         </button>
 
-        <button class="menuButton" id="settingsBackButton">
-            ← BACK
-        </button>
+<button
+    class="menuButton"
+    id="settingsBackButton"
+    style="
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 12000;
+        width: 120px;
+        background: #0875e8;
+        color: white;
+    "
+>
+    ← BACK
+</button>
 
     </div>
 
@@ -492,13 +506,66 @@ canvas {
 </div>
 
 <!-- GAME -->
+ <!-- RACING MISSION HUD -->
+
+<div id="missionPanel" style="
+    display:none;
+    position:fixed;
+    top:100px;
+    left:20px;
+    z-index:500;
+    background:rgba(0,0,0,0.85);
+    color:white;
+    padding:18px;
+    border:2px solid #00ccff;
+    border-radius:12px;
+    font-family:Arial;
+">
+
+    <h2>CITY SPRINT</h2>
+
+    <p>TIME:
+        <span id="missionTimer">120s</span>
+    </p>
+
+    <p>CHECKPOINT:
+        <span id="missionCheckpoint">1 / 4</span>
+    </p>
+
+    <p>POINTS:
+        <span id="missionPoints">0</span>
+    </p>
+
+    <p id="missionStatus">READY!</p>
+
+</div>
 
 <script type="module" src="./game.js"></script>
 
 <!-- MENU FUNCTIONS -->
 
 <script>
+// RACING MISSIONS BUTTON
 
+document.getElementById("missionButton")
+.addEventListener("click", function() {
+
+    if (typeof window.startCitySprint === "function") {
+
+        startScreen.style.display = "none";
+
+        garagePanel.style.display = "none";
+        settingsPanel.style.display = "none";
+
+        window.startCitySprint();
+
+    } else {
+
+        alert("Game is still loading!");
+
+    }
+
+});
 const startScreen =
 document.getElementById("startScreen");
 
@@ -680,7 +747,35 @@ document.getElementById("exitButton")
 });
 
 </script>
+<!-- RACING MISSION HUD -->
 
+<div id="missionPanel" style="
+display:none;
+position:fixed;
+top:120px;
+left:20px;
+z-index:100;
+background:rgba(0,0,0,0.85);
+color:white;
+padding:18px;
+border:2px solid #00ffff;
+border-radius:12px;
+font-family:Arial;
+">
+
+<h2>🏁 CITY SPRINT</h2>
+
+<p>TIME: <span id="missionTimer">120s</span></p>
+
+<p>CHECKPOINT:
+<span id="missionCheckpoint">1 / 4</span></p>
+
+<p>POINTS:
+<span id="missionPoints">0</span></p>
+
+<p id="missionStatus">RACE STARTED!</p>
+
+</div>
 </body>
 
 <!-- PAUSE BUTTON -->
