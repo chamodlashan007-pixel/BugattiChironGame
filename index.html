@@ -263,6 +263,61 @@ h1 {
 
 }
 
+
+/* MOBILE LANDSCAPE SUPPORT */
+
+html, body {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overscroll-behavior: none;
+}
+
+canvas {
+    touch-action: none;
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+
+    #startScreen {
+        padding: 3% 6%;
+    }
+
+    .menuContent {
+        max-width: 430px;
+    }
+
+    h1 {
+        font-size: 46px;
+    }
+
+    .subtitle {
+        margin-top: 8px;
+        margin-bottom: 14px;
+    }
+
+    .menuButton {
+        width: 220px;
+        padding: 10px;
+        margin: 7px 0;
+    }
+
+    #mobileControls {
+        bottom: 8px;
+        padding: 8px 14px;
+    }
+
+    .mobileButton {
+        width: 52px;
+        height: 52px;
+    }
+
+    .panelContent {
+        max-height: 94vh;
+        overflow-y: auto;
+    }
+}
+
 </style>
 
 <script type="importmap">
@@ -492,10 +547,33 @@ function selectGarageCar(type) {
 
 window.selectGarageCar = selectGarageCar;
 
+
+/* MOBILE LANDSCAPE MODE */
+
+function requestLandscapeMode() {
+
+    // Call both APIs directly from the Play button tap.
+    // Some browsers require fullscreen before allowing orientation lock.
+
+    const fullscreenRequest = document.documentElement.requestFullscreen
+        ? document.documentElement.requestFullscreen()
+        : Promise.resolve();
+
+    const orientationRequest = screen.orientation &&
+        typeof screen.orientation.lock === "function"
+        ? screen.orientation.lock("landscape")
+        : Promise.resolve();
+
+    Promise.allSettled([fullscreenRequest, orientationRequest]);
+}
+
+
 /* PLAY GAME */
 
 document.getElementById("playButton")
 .addEventListener("click", function() {
+
+    requestLandscapeMode();
 
     startScreen.style.display = "none";
     garagePanel.style.display = "none";
@@ -530,6 +608,7 @@ document.getElementById("playButton")
 
 });
 
+
 /* GARAGE */
 
 document.getElementById("garageButton")
@@ -548,6 +627,7 @@ document.getElementById("garageBackButton")
 
 });
 
+
 /* SETTINGS */
 
 document.getElementById("settingsButton")
@@ -565,6 +645,7 @@ document.getElementById("settingsBackButton")
     startScreen.style.display = "flex";
 
 });
+
 
 /* NIGHT MODE */
 
@@ -588,6 +669,7 @@ document.getElementById("nightButtonMenu")
 document.getElementById("nightButtonSettings")
 .addEventListener("click", changeNightMode);
 
+
 /* EXIT */
 
 document.getElementById("exitButton")
@@ -599,18 +681,26 @@ document.getElementById("exitButton")
 
 </script>
 
-</body><!-- PAUSE BUTTON -->
+</body>
+
+<!-- PAUSE BUTTON -->
+
 <button id="pauseButton">Ⅱ</button>
 
 <!-- PAUSE MENU -->
+
 <div id="pausePanel">
+
     <h1>GAME PAUSED</h1>
 
     <button id="resumeButton">▶ RESUME</button>
+
     <button id="mainMenuButton">🏠 MAIN MENU</button>
+
 </div>
 
 <style>
+
 #pauseButton {
     position: fixed;
     top: 15px;
@@ -647,5 +737,7 @@ document.getElementById("exitButton")
     border-radius: 8px;
     cursor: pointer;
 }
+
 </style>
+
 </html>
