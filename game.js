@@ -2015,6 +2015,35 @@ window.addEventListener("resize", function() {
 // =====================================================
 
 let lastFrameTime = 0;
+function updateDashboard() {
+
+    const speedValue = document.getElementById("speedValue");
+    const rpmValue = document.getElementById("rpmValue");
+    const gearValue = document.getElementById("gearValue");
+    const fuelValue = document.getElementById("fuelValue");
+    const nitroStatus = document.getElementById("nitroStatus");
+
+    const kmh = Math.round(Math.abs(speed) * 120);
+
+    if (speedValue) speedValue.textContent = kmh;
+    if (rpmValue) rpmValue.textContent =
+        Math.round(800 + Math.abs(speed) * 4000);
+
+    if (gearValue) {
+        gearValue.textContent =
+            kmh === 0 ? "N" :
+            kmh < 40 ? "1" :
+            kmh < 80 ? "2" :
+            kmh < 130 ? "3" : "4";
+    }
+
+    if (fuelValue) fuelValue.textContent = "100%";
+
+    if (nitroStatus) {
+        nitroStatus.textContent =
+            keys["shift"] ? "NITRO ACTIVE" : "NITRO READY";
+    }
+}
 
 // =====================================================
 // GAME LOOP
@@ -2034,7 +2063,11 @@ function animate(timestamp = 0) {
 
     updateCar();
 
+    updateDashboard();
+
     updateCamera();
+
+    drawMiniMap();
 
     updatePedestrians();
 
@@ -2055,7 +2088,12 @@ function animate(timestamp = 0) {
 createGameSettings();
 
 // START ANIMATION
+
 animate();
+
+updateCamera();
+
+updatePedestrians();
 
 console.log(
     "BUGATTI CHIRON CITY DRIVE READY!"
@@ -2078,33 +2116,38 @@ let missionTime = 120;
 let missionPoints = 0;
 
 const checkpointMarkers = [];
-
 function createCheckpoint(position, number) {
 
     const checkpoint = new THREE.Group();
 
-    // BIG GLOWING RING
+    // CHECKPOINT RING
     const ring = new THREE.Mesh(
         new THREE.TorusGeometry(12, 1.2, 12, 40),
         new THREE.MeshBasicMaterial({
-            color: 0x00ffff,
-            side: THREE.DoubleSide
+            color: 0x00ffff
         })
     );
 
     ring.position.y = 8;
     checkpoint.add(ring);
 
-    // CHECKPOINT NUMBER
-    const marker = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.5, 0.5, 12, 8),
-        new THREE.MeshBasicMaterial({
-            color: 0x00ffff
-        })
+    // CHECKPOINT POLES
+    const poleMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ffff
+    });
+
+    const pole1 = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.4, 0.4, 14, 8),
+        poleMaterial
     );
 
-    marker.position.y = 8;
-    checkpoint.add(marker);
+    pole1.position.set(-9, 7, 0);
+    checkpoint.add(pole1);
+
+    const pole2 = pole1.clone();
+
+    pole2.position.set(9, 7, 0);
+    checkpoint.add(pole2);
 
     checkpoint.position.set(
         position.x,
@@ -2116,34 +2159,6 @@ function createCheckpoint(position, number) {
 
     checkpointMarkers.push(checkpoint);
 }
-
-    ring.position.y = 7;
-    group.add(ring);
-
-    // CHECKPOINT NUMBER
-    const pole1 = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.4, 0.4, 14, 8),
-        new THREE.MeshBasicMaterial({
-            color: 0x00ffff
-        })
-    );
-
-    pole1.position.set(-9, 7, 0);
-    group.add(pole1);
-
-    const pole2 = pole1.clone();
-    pole2.position.x = 9;
-    group.add(pole2);
-
-    group.position.set(
-        position.x,
-        0,
-        position.z
-    );
-
-    scene.add(group);
-
-    checkpointMarkers.push(group);
 
 // START MISSION
 
@@ -2542,3 +2557,289 @@ function createRacingTrack(x, z) {
 createRacingTrack(-1000, -200);
 
 console.log("UPDATE 8 OPEN WORLD READY!");
+
+// =====================================================
+// UPDATE 9 - LEFT SIDE MINI WORLD MAP
+// =====================================================
+
+const miniMap = document.createElement("canvas");
+
+miniMap.id = "miniWorldMap";
+
+miniMap.width = 260;
+miniMap.height = 260;
+
+miniMap.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 260px;
+    height: 260px;
+    z-index: 5;
+    display: block;
+    border: 3px solid #168cff;
+    border-radius: 12px;
+    background: #263b2b;
+    pointer-events: none;
+`;
+
+document.body.appendChild(miniMap);
+
+const miniCtx = miniMap.getContext("2d");
+
+// DRAW MINI MAP
+
+function drawMiniMap() {
+
+    const ctx = miniCtx;
+
+    const width = miniMap.width;
+    const height = miniMap.height;
+
+    const scale = 0.13;
+
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    ctx.clearRect(0, 0, width, height);
+
+    // BACKGROUND
+
+    ctx.fillStyle = "#456b3c";
+    ctx.fillRect(0, 0, width, height);
+
+    // WORLD COORDINATES
+
+    function mapX(x) {
+        return centerX +
+            (x - car.position.x) * scale;
+    }
+
+    function mapY(z) {
+        return centerY +
+            (z - car.position.z) * scale;
+    }
+
+    // ROADS
+
+    ctx.fillStyle = "#30343a";
+
+    for (const road of roadPositions) {
+
+        ctx.fillRect(
+            mapX(road) - 14 * scale,
+            mapY(-1500),
+            28 * scale,
+            3000 * scale
+        );
+
+        ctx.fillRect(
+            mapX(-1500),
+            mapY(road) - 14 * scale,
+            3000 * scale,
+            28 * scale
+        );
+    }
+
+    // BUILDINGS
+
+    ctx.fillStyle = "#b9c6ce";
+
+    for (const obj of solidObjects) {
+
+        ctx.fillRect(
+            mapX(obj.x) - obj.width * scale / 2,
+            mapY(obj.z) - obj.depth * scale / 2,
+            obj.width * scale,
+            obj.depth * scale
+        );
+    }
+
+    // TRAFFIC CARS
+
+    ctx.fillStyle = "#ffcc00";
+
+    for (const traffic of trafficCars) {
+
+        ctx.beginPath();
+
+        ctx.arc(
+            mapX(traffic.mesh.position.x),
+            mapY(traffic.mesh.position.z),
+            3,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+
+    // PLAYER CAR
+
+    ctx.save();
+
+    ctx.translate(centerX, centerY);
+    ctx.rotate(-heading);
+
+    ctx.fillStyle = "#00d9ff";
+
+    ctx.beginPath();
+
+    ctx.moveTo(0, -12);
+    ctx.lineTo(-7, 8);
+    ctx.lineTo(7, 8);
+
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+
+    // MAP BORDER TITLE
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 15px Arial";
+
+    ctx.fillText("WORLD MAP", 10, 20);
+}
+
+// =====================================================
+// MINI MAP READY
+// =====================================================
+
+console.log("LEFT MINI MAP READY!");
+// ============================================
+// UPDATE 9 - FULL SCREEN WORLD MAP
+// PRESS G TO OPEN / CLOSE
+// ============================================
+
+let fullMapOpen = false;
+
+const fullMap = document.createElement("canvas");
+
+fullMap.id = "fullScreenWorldMap";
+
+fullMap.style.cssText = `
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: none;
+    background: #263b2b;
+    pointer-events: none;
+`;
+
+document.body.appendChild(fullMap);
+
+const mapCtx = fullMap.getContext("2d");
+
+function resizeFullMap() {
+    fullMap.width = window.innerWidth;
+    fullMap.height = window.innerHeight;
+}
+
+resizeFullMap();
+
+window.addEventListener("resize", resizeFullMap);
+
+function toggleFullMap() {
+
+    fullMapOpen = !fullMapOpen;
+
+    fullMap.style.display =
+        fullMapOpen ? "block" : "none";
+
+}
+
+window.addEventListener("keydown", function(event) {
+
+    if (event.key.toLowerCase() === "g" && !event.repeat) {
+        toggleFullMap();
+    }
+
+    if (event.key === "Escape" && fullMapOpen) {
+        toggleFullMap();
+    }
+
+});
+
+function drawFullMap() {
+
+    if (!fullMapOpen) return;
+
+    const ctx = mapCtx;
+
+    const width = fullMap.width;
+    const height = fullMap.height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    ctx.fillStyle = "#456b3c";
+    ctx.fillRect(0, 0, width, height);
+
+    const scale = Math.min(
+        width / 3200,
+        height / 3200
+    );
+
+    ctx.save();
+
+    ctx.translate(width / 2, height / 2);
+    ctx.scale(scale, scale);
+
+    // ROADS
+    ctx.fillStyle = "#292929";
+
+    roadPositions.forEach(pos => {
+
+        ctx.fillRect(pos - 14, -1600, 28, 3200);
+
+        ctx.fillRect(-1600, pos - 14, 3200, 28);
+
+    });
+
+    // BUILDINGS
+    ctx.fillStyle = "#b9c6ce";
+
+    solidObjects.forEach(obj => {
+
+        ctx.fillRect(
+            obj.x - obj.width / 2,
+            obj.z - obj.depth / 2,
+            obj.width,
+            obj.depth
+        );
+
+    });
+
+    // PLAYER
+    ctx.save();
+
+    ctx.translate(car.position.x, car.position.z);
+    ctx.rotate(-heading);
+
+    ctx.fillStyle = "#00d9ff";
+
+    ctx.fillRect(-8, -15, 16, 30);
+
+    ctx.restore();
+
+    ctx.restore();
+
+    // TITLE
+    ctx.fillStyle = "white";
+    ctx.font = "bold 25px Arial";
+
+    ctx.fillText("BUGATTI CITY WORLD MAP", 25, 40);
+
+    ctx.font = "16px Arial";
+
+    ctx.fillText("PRESS G OR ESC TO CLOSE", 25, 70);
+
+}
+
+// ============================================
+// MAP READY
+// ============================================
+
+console.log("FULL SCREEN MAP READY!");
