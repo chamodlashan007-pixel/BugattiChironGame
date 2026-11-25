@@ -2067,8 +2067,6 @@ function animate(timestamp = 0) {
 
     updateCamera();
 
-    drawMiniMap();
-
     updatePedestrians();
 
     updateTraffic();
@@ -2076,6 +2074,8 @@ function animate(timestamp = 0) {
     updateTrafficLights();
 
     updateEngineSound();
+
+    drawFullMap();
 
     renderer.render(scene, camera);
 }
@@ -2558,175 +2558,23 @@ createRacingTrack(-1000, -200);
 
 console.log("UPDATE 8 OPEN WORLD READY!");
 
-// =====================================================
-// UPDATE 9 - LEFT SIDE MINI WORLD MAP
-// =====================================================
-
-const miniMap = document.createElement("canvas");
-
-miniMap.id = "miniWorldMap";
-
-miniMap.width = 260;
-miniMap.height = 260;
-
-miniMap.style.cssText = `
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    width: 260px;
-    height: 260px;
-    z-index: 5;
-    display: block;
-    border: 3px solid #168cff;
-    border-radius: 12px;
-    background: #263b2b;
-    pointer-events: none;
-`;
-
-document.body.appendChild(miniMap);
-
-const miniCtx = miniMap.getContext("2d");
-
-// DRAW MINI MAP
-
-function drawMiniMap() {
-
-    const ctx = miniCtx;
-
-    const width = miniMap.width;
-    const height = miniMap.height;
-
-    const scale = 0.13;
-
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    ctx.clearRect(0, 0, width, height);
-
-    // BACKGROUND
-
-    ctx.fillStyle = "#456b3c";
-    ctx.fillRect(0, 0, width, height);
-
-    // WORLD COORDINATES
-
-    function mapX(x) {
-        return centerX +
-            (x - car.position.x) * scale;
-    }
-
-    function mapY(z) {
-        return centerY +
-            (z - car.position.z) * scale;
-    }
-
-    // ROADS
-
-    ctx.fillStyle = "#30343a";
-
-    for (const road of roadPositions) {
-
-        ctx.fillRect(
-            mapX(road) - 14 * scale,
-            mapY(-1500),
-            28 * scale,
-            3000 * scale
-        );
-
-        ctx.fillRect(
-            mapX(-1500),
-            mapY(road) - 14 * scale,
-            3000 * scale,
-            28 * scale
-        );
-    }
-
-    // BUILDINGS
-
-    ctx.fillStyle = "#b9c6ce";
-
-    for (const obj of solidObjects) {
-
-        ctx.fillRect(
-            mapX(obj.x) - obj.width * scale / 2,
-            mapY(obj.z) - obj.depth * scale / 2,
-            obj.width * scale,
-            obj.depth * scale
-        );
-    }
-
-    // TRAFFIC CARS
-
-    ctx.fillStyle = "#ffcc00";
-
-    for (const traffic of trafficCars) {
-
-        ctx.beginPath();
-
-        ctx.arc(
-            mapX(traffic.mesh.position.x),
-            mapY(traffic.mesh.position.z),
-            3,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-    }
-
-    // PLAYER CAR
-
-    ctx.save();
-
-    ctx.translate(centerX, centerY);
-    ctx.rotate(-heading);
-
-    ctx.fillStyle = "#00d9ff";
-
-    ctx.beginPath();
-
-    ctx.moveTo(0, -12);
-    ctx.lineTo(-7, 8);
-    ctx.lineTo(7, 8);
-
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.restore();
-
-    // MAP BORDER TITLE
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 15px Arial";
-
-    ctx.fillText("WORLD MAP", 10, 20);
-}
-
-// =====================================================
-// MINI MAP READY
-// =====================================================
-
-console.log("LEFT MINI MAP READY!");
 // ============================================
-// UPDATE 9 - FULL SCREEN WORLD MAP
-// PRESS G TO OPEN / CLOSE
+// BUGATTI CITY FULL SCREEN WORLD MAP
+// PRESS M TO OPEN / CLOSE
 // ============================================
 
 let fullMapOpen = false;
 
 const fullMap = document.createElement("canvas");
 
-fullMap.id = "fullScreenWorldMap";
-
 fullMap.style.cssText = `
     position: fixed;
     inset: 0;
     width: 100%;
     height: 100%;
-    z-index: 9999;
+    z-index: 99999;
     display: none;
-    background: #263b2b;
-    pointer-events: none;
+    background: #456b3c;
 `;
 
 document.body.appendChild(fullMap);
@@ -2742,6 +2590,8 @@ resizeFullMap();
 
 window.addEventListener("resize", resizeFullMap);
 
+// OPEN / CLOSE MAP
+
 function toggleFullMap() {
 
     fullMapOpen = !fullMapOpen;
@@ -2749,11 +2599,17 @@ function toggleFullMap() {
     fullMap.style.display =
         fullMapOpen ? "block" : "none";
 
+    if (fullMapOpen) {
+        resizeFullMap();
+        drawFullMap();
+    }
 }
+
+// KEYBOARD
 
 window.addEventListener("keydown", function(event) {
 
-    if (event.key.toLowerCase() === "g" && !event.repeat) {
+    if (event.key.toLowerCase() === "m" && !event.repeat) {
         toggleFullMap();
     }
 
@@ -2763,45 +2619,54 @@ window.addEventListener("keydown", function(event) {
 
 });
 
+// DRAW MAP
+
 function drawFullMap() {
 
     if (!fullMapOpen) return;
 
     const ctx = mapCtx;
 
-    const width = fullMap.width;
-    const height = fullMap.height;
+    const w = fullMap.width;
+    const h = fullMap.height;
 
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, w, h);
 
     ctx.fillStyle = "#456b3c";
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, w, h);
 
     const scale = Math.min(
-        width / 3200,
-        height / 3200
+        (w - 100) / 1500,
+        (h - 130) / 1500
     );
 
     ctx.save();
 
-    ctx.translate(width / 2, height / 2);
+    ctx.translate(w / 2, h / 2);
     ctx.scale(scale, scale);
 
+    // CITY GROUND
+
+    ctx.fillStyle = "#527b47";
+    ctx.fillRect(-750, -750, 1500, 1500);
+
     // ROADS
+
     ctx.fillStyle = "#292929";
 
     roadPositions.forEach(pos => {
 
-        ctx.fillRect(pos - 14, -1600, 28, 3200);
+        ctx.fillRect(pos - 14, -750, 28, 1500);
 
-        ctx.fillRect(-1600, pos - 14, 3200, 28);
+        ctx.fillRect(-750, pos - 14, 1500, 28);
 
     });
 
     // BUILDINGS
-    ctx.fillStyle = "#b9c6ce";
 
-    solidObjects.forEach(obj => {
+    ctx.fillStyle = "#c5d4dc";
+
+    buildings.forEach(obj => {
 
         ctx.fillRect(
             obj.x - obj.width / 2,
@@ -2812,34 +2677,61 @@ function drawFullMap() {
 
     });
 
-    // PLAYER
+    // BUGATTI BLUE ARROW
+
     ctx.save();
 
-    ctx.translate(car.position.x, car.position.z);
-    ctx.rotate(-heading);
+    ctx.translate(
+        car.position.x,
+        car.position.z
+    );
 
-    ctx.fillStyle = "#00d9ff";
+    ctx.rotate(Math.PI - heading);
 
-    ctx.fillRect(-8, -15, 16, 30);
+    // ARROW
+
+    ctx.fillStyle = "#003b70";
+
+    ctx.beginPath();
+    ctx.moveTo(0, -30);
+    ctx.lineTo(-15, 15);
+    ctx.lineTo(0, 8);
+    ctx.lineTo(15, 15);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#00eaff";
+
+    ctx.beginPath();
+    ctx.moveTo(0, -25);
+    ctx.lineTo(-10, 12);
+    ctx.lineTo(0, 6);
+    ctx.lineTo(10, 12);
+    ctx.closePath();
+    ctx.fill();
 
     ctx.restore();
 
     ctx.restore();
 
     // TITLE
+
     ctx.fillStyle = "white";
     ctx.font = "bold 25px Arial";
 
-    ctx.fillText("BUGATTI CITY WORLD MAP", 25, 40);
+    ctx.fillText(
+        "BUGATTI CITY WORLD MAP",
+        25,
+        40
+    );
 
     ctx.font = "16px Arial";
 
-    ctx.fillText("PRESS G OR ESC TO CLOSE", 25, 70);
-
+    ctx.fillText(
+        "PRESS M OR ESC TO CLOSE",
+        25,
+        70
+    );
 }
 
-// ============================================
-// MAP READY
-// ============================================
-
-console.log("FULL SCREEN MAP READY!");
+console.log("WORLD MAP READY!");
